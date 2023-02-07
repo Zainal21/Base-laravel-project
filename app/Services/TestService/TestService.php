@@ -21,7 +21,7 @@ class TestService extends BaseService
     {
         return Validator::make($this->data->toArray(), [
             "name"     => "required",
-            "email"    => "required|email|unique:users",
+            "email"    => "required|email|unique:tests",
             "description" => "required",
         ]);
     }

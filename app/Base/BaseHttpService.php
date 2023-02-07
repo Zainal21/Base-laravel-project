@@ -32,30 +32,30 @@ final class BaseHttpService extends BaseService {
 
     public static function get() 
     {
-        $t = new BaseHttpService();
-        $t->method = "GET";
-        return $t;
+        $service = new BaseHttpService();
+        $service->method = "GET";
+        return $service;
     }
 
     public static function post() 
     {
-        $t = new BaseHttpService();
-        $t->method = "POST";
-        return $t;
+        $service = new BaseHttpService();
+        $service->method = "POST";
+        return $service;
     }
 
     public static function put() 
     {
-        $t = new BaseHttpService();
-        $t->method = "PUT";
-        return $t;
+        $service = new BaseHttpService();
+        $service->method = "PUT";
+        return $service;
     }
 
     public static function delete() 
     {
-        $t = new BaseHttpService();
-        $t->method = "DELETE";
-        return $t;
+        $service = new BaseHttpService();
+        $service->method = "DELETE";
+        return $service;
     }
 
     public function setData($data) 
