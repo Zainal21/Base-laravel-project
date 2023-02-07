@@ -13,7 +13,7 @@ class ExampleRepository implements ExampleContract
 {
     public function getUsers() 
     {
-        return BaseHttpService::post()
+        return BaseHttpService::get()
             ->setUrl(config('service.dummy'))
             ->setServiceName("example") // set your service inquiry's name
             ->call();

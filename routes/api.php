@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TestController;
 use App\Http\Controllers\Api\ExampleController;
 
 /*
@@ -21,4 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'v1'], function(){
     Route::get('/example', [ExampleController::class, 'example']); 
+    Route::post('/test', [TestController::class, 'example']); 
 });

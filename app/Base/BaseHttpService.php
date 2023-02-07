@@ -10,12 +10,12 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 
-final class BaseHttpService extends BaseService 
-{
+final class BaseHttpService extends BaseService {
+
     protected string $url = "";
     protected string $serviceName = "";
     protected string $method = "";
-    protected int $httpServiceimeout = 60;
+    protected int $timeout = 60;
     protected $data;
     protected $onTimedOut;
     protected array $headers = [
@@ -23,125 +23,122 @@ final class BaseHttpService extends BaseService
     ];
     protected bool $printInfo = false;
 
-  
     protected Client $client;
 
     public function __construct() 
     {
-        $httpService->client = new Client();
+        $this->client = new Client();
     }
 
     public static function get() 
     {
-        $httpService = new BaseHttpService();
-        $httpService->method = "GET";
-        return $httpService;
+        $t = new BaseHttpService();
+        $t->method = "GET";
+        return $t;
     }
 
     public static function post() 
     {
-        $httpService = new BaseHttpService();
-        $httpService->method = "POST";
-        return $httpService;
+        $t = new BaseHttpService();
+        $t->method = "POST";
+        return $t;
     }
 
     public static function put() 
     {
-        $httpService = new BaseHttpService();
-        $httpService->method = "PUT";
-        return $httpService;
+        $t = new BaseHttpService();
+        $t->method = "PUT";
+        return $t;
     }
 
     public static function delete() 
     {
-        $httpService = new BaseHttpService();
-        $httpService->method = "DELETE";
-        return $httpService;
+        $t = new BaseHttpService();
+        $t->method = "DELETE";
+        return $t;
     }
 
     public function setData($data) 
     {
-        $httpService->data = $data;
-        return $httpService;
+        $this->data = $data;
+        return $this;
     }
 
     public function setUrl(string $url) 
     {
-        $httpService->url = $url;
-        return $httpService;
+        $this->url = $url;
+        return $this;
     }
 
-    public function setTimeout(int $httpServiceimeout) 
+    public function setTimeout(int $timeout) 
     {
-        $httpService->timeout = $httpServiceimeout;
-        return $httpService;
+        $this->timeout = $timeout;
+        return $this;
     }
 
     public function onTimeout(callable $func) 
     {
-        $httpService->onTimedOut = $func();
-        return $httpService;
+        $this->onTimedOut = $func();
+        return $this;
     }
 
     public function setServiceName(string $name) 
     {
-        $httpService->serviceName = $name;
-        return $httpService;
+        $this->serviceName = $name;
+        return $this;
     }
 
     public function clearHeader() 
     {
-        $httpService->headers = [];
-        return $httpService;
+        $this->headers = [];
+        return $this;
     }
 
     public function addHeader(string $key, string $value) 
     {
-        $httpService->headers[$key] = $value;
-        return $httpService;
+        $this->headers[$key] = $value;
+        return $this;
     }
 
     protected function getOptions() 
     {
-        switch ($httpService->method) 
+        switch ($this->method) 
         {
             case "GET" :
                 return [
-                    "headers" => $httpService->headers,
-                    "query"   => $httpService->data
+                    "headers" => $this->headers,
+                    "query"   => $this->data
                 ];
             case "POST" :
             default:
                 return [
-                    "headers" => $httpService->headers,
-                    "json"    => $httpService->data
+                    "headers" => $this->headers,
+                    "json"    => $this->data
                 ];
         }
     }
-
+    
     public function call() : ResponseService
     {
-
-        if ($httpService->url == ""){
+        if ($this->url == ""){
             return self::error(null,"url does not exist");
         }
-        if ($httpService->method == ""){
+        if ($this->method == ""){
             return self::error(null,"method does not exist");
         }
-
-        if ($httpService->serviceName == ""){
+        if ($this->serviceName == ""){
             return self::error(null,"service name does not exist");
         }
-
-        if ($httpService->printInfo){
-            echo "\n".$httpService->method." : ".$httpService->url;
-            echo "\noptions : ".json_encode($httpService->getOptions());
+        if ($this->printInfo){
+            echo "\n".$this->method." : ".$this->url;
+            echo "\noptions : ".json_encode($this->getOptions());
         }
 
         try {
-            $attempt = $httpService->client->request($httpService->method, $httpService->url, $httpService->getOptions());
+            $attempt = $this->client->request($this->method, $this->url, $this->getOptions());
             $contents = json_decode($attempt->getBody()->getContents(), true);
-            if ($contents != null){
+            if ($contents != null) 
+            {
                 return self::success($contents, "loaded");
             }
             return self::error(null,"unknown");
@@ -151,18 +148,18 @@ final class BaseHttpService extends BaseService
             $isTimeout3 = str_contains(strtolower($e->getMessage()), 'timedout');
             $isTimeout4 = str_contains(strtolower($e->getMessage()), 'timed out');
             if ($isTimeout1 || $isTimeout2 || $isTimeout3 || $isTimeout4){
-                $func = $httpService->onTimedOut ?? function() 
+                $func = $this->onTimedOut ?? function() 
                 {};
                 $func();
             }
 
-            $errorText = "Internal server error [".$httpService->serviceName."]";
+            $errorText = "Internal server error [".$this->serviceName."]";
             $error = [
                 "code"  => $e->getCode(),
                 "error" => $e->getMessage()
             ];
 
-            if ($e instanceof ClientException) {
+            if ($e instanceof ClientException){
                 $errorBody = json_decode($e->getResponse()->getBody()->getContents());
                 $errorBody = collect($errorBody)->toArray();
                 if ($errorBody && isset($errorBody['errors'])) 
@@ -176,8 +173,7 @@ final class BaseHttpService extends BaseService
             }
 
             return self::error(null,$errorText, is_numeric($e->getCode()) ? $e->getCode() : 404);
-        } catch (\Exception $e){
-            // catch the general exception
+        } catch (\Exception $e) {
             return self::error(null,$e->getMessage(), is_numeric($e->getCode()) ? $e->getCode() : 404);
         }
     }

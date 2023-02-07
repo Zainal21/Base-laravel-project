@@ -8,9 +8,16 @@ use App\Services\ExampleService\ExampleService;
 
 class ExampleController extends Controller
 {
+    private $exampleService;
+    
+    public function __construct()
+    {
+        $this->exampleService = new ExampleService();
+    }
+
     public function example()
     {
-        $data = (new ExampleService)->call();
+        $data = $this->exampleService->call();
         return response()->json($data); 
     }
 }
