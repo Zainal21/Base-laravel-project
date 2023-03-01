@@ -16,5 +16,4 @@ abstract class BaseService implements ServiceContract
     {
         return new ResponseService($data, $message, $status);
     }
-
 }

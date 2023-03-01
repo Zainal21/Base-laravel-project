@@ -25,84 +25,84 @@ final class BaseHttpService extends BaseService {
 
     protected Client $client;
 
-    public function __construct() 
+    public function __construct()
     {
         $this->client = new Client();
     }
 
-    public static function get() 
+    public static function get()
     {
         $service = new BaseHttpService();
         $service->method = "GET";
         return $service;
     }
 
-    public static function post() 
+    public static function post()
     {
         $service = new BaseHttpService();
         $service->method = "POST";
         return $service;
     }
 
-    public static function put() 
+    public static function put()
     {
         $service = new BaseHttpService();
         $service->method = "PUT";
         return $service;
     }
 
-    public static function delete() 
+    public static function delete()
     {
         $service = new BaseHttpService();
         $service->method = "DELETE";
         return $service;
     }
 
-    public function setData($data) 
+    public function setData($data)
     {
         $this->data = $data;
         return $this;
     }
 
-    public function setUrl(string $url) 
+    public function setUrl(string $url)
     {
         $this->url = $url;
         return $this;
     }
 
-    public function setTimeout(int $timeout) 
+    public function setTimeout(int $timeout)
     {
         $this->timeout = $timeout;
         return $this;
     }
 
-    public function onTimeout(callable $func) 
+    public function onTimeout(callable $func)
     {
         $this->onTimedOut = $func();
         return $this;
     }
 
-    public function setServiceName(string $name) 
+    public function setServiceName(string $name)
     {
         $this->serviceName = $name;
         return $this;
     }
 
-    public function clearHeader() 
+    public function clearHeader()
     {
         $this->headers = [];
         return $this;
     }
 
-    public function addHeader(string $key, string $value) 
+    public function addHeader(string $key, string $value)
     {
         $this->headers[$key] = $value;
         return $this;
     }
 
-    protected function getOptions() 
+    protected function getOptions()
     {
-        switch ($this->method) 
+        switch ($this->method)
         {
             case "GET" :
                 return [
@@ -117,7 +117,7 @@ final class BaseHttpService extends BaseService {
                 ];
         }
     }
-    
+
     public function call() : ResponseService
     {
         if ($this->url == ""){
@@ -137,7 +137,7 @@ final class BaseHttpService extends BaseService {
         try {
             $attempt = $this->client->request($this->method, $this->url, $this->getOptions());
             $contents = json_decode($attempt->getBody()->getContents(), true);
-            if ($contents != null) 
+            if ($contents != null)
             {
                 return self::success($contents, "loaded");
             }
@@ -148,7 +148,7 @@ final class BaseHttpService extends BaseService {
             $isTimeout3 = str_contains(strtolower($e->getMessage()), 'timedout');
             $isTimeout4 = str_contains(strtolower($e->getMessage()), 'timed out');
             if ($isTimeout1 || $isTimeout2 || $isTimeout3 || $isTimeout4){
-                $func = $this->onTimedOut ?? function() 
+                $func = $this->onTimedOut ?? function()
                 {};
                 $func();
             }
@@ -162,9 +162,9 @@ final class BaseHttpService extends BaseService {
             if ($e instanceof ClientException){
                 $errorBody = json_decode($e->getResponse()->getBody()->getContents());
                 $errorBody = collect($errorBody)->toArray();
-                if ($errorBody && isset($errorBody['errors'])) 
+                if ($errorBody && isset($errorBody['errors']))
                 {
-                    if (is_array($errorBody['errors'])) 
+                    if (is_array($errorBody['errors']))
                     {
                         $errorText = collect($errorBody['errors'])->first();
                     }

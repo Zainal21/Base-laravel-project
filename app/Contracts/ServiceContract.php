@@ -7,5 +7,4 @@ use App\Responses\ResponseService;
 interface ServiceContract 
 {
     public function call(): ResponseService;
-
 }
